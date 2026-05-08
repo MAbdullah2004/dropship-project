@@ -1,0 +1,26 @@
+databases:
+  - name: dropship_db
+    databaseName: dropship_db
+    user: dropship_user
+    plan: free
+
+services:
+  - type: web
+    name: dropship-project
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn dropship_project.wsgi
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dropship_db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
