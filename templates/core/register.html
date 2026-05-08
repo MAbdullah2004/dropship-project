@@ -139,13 +139,6 @@
         </div>
       </div>
 
-      {% if form.errors %}
-      <div style="background:#FEE2E2;border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:0.85rem;color:#991B1B;">
-        {% for field in form %}{% for error in field.errors %}<div>⚠ {{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}
-        {% for error in form.non_field_errors %}<div>⚠ {{ error }}</div>{% endfor %}
-      </div>
-      {% endif %}
-
       <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:0.5rem;">Create Account →</button>
     </form>
     <p style="text-align:center;margin-top:1.5rem;color:var(--gray);font-size:0.88rem;">
