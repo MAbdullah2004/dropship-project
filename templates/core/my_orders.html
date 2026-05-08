@@ -1,0 +1,83 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}My Orders — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">📦 My Orders</h1>
+    <p class="page-subtitle">Track and manage all your customer orders</p>
+  </div>
+  <a href="{% url 'place_order' %}" class="btn btn-primary">➕ New Order</a>
+</div>
+
+<div class="filters">
+  <a href="{% url 'my_orders' %}" class="filter-btn {% if not request.GET.status %}active{% endif %}">All</a>
+  <a href="{% url 'my_orders' %}?status=pending" class="filter-btn {% if request.GET.status == 'pending' %}active{% endif %}">⏳ Pending</a>
+  <a href="{% url 'my_orders' %}?status=confirmed" class="filter-btn {% if request.GET.status == 'confirmed' %}active{% endif %}">✅ Confirmed</a>
+  <a href="{% url 'my_orders' %}?status=dispatched" class="filter-btn {% if request.GET.status == 'dispatched' %}active{% endif %}">🚚 Dispatched</a>
+  <a href="{% url 'my_orders' %}?status=delivered" class="filter-btn {% if request.GET.status == 'delivered' %}active{% endif %}">📬 Delivered</a>
+  <a href="{% url 'my_orders' %}?status=cancelled" class="filter-btn {% if request.GET.status == 'cancelled' %}active{% endif %}">❌ Cancelled</a>
+</div>
+
+{% if orders %}
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th>Customer</th>
+          <th>City</th>
+          <th>Qty</th>
+          <th>Sell Price</th>
+          <th>Profit</th>
+          <th>Tracking</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><strong>#{{ order.pk }}</strong></td>
+          <td style="font-size:0.82rem;max-width:160px;">{{ order.product.name|truncatechars:40 }}</td>
+          <td style="font-size:0.82rem;"><strong>{{ order.customer_name }}</strong><br><small style="color:var(--gray)">{{ order.customer_phone }}</small></td>
+          <td style="font-size:0.82rem;">{{ order.customer_city }}</td>
+          <td>{{ order.quantity }}</td>
+          <td style="font-weight:700;color:var(--primary);">Rs. {{ order.reseller_price }}</td>
+          <td style="font-weight:700;color:{% if order.profit > 0 %}var(--success){% else %}var(--danger){% endif %};">Rs. {{ order.profit }}</td>
+          <td style="font-size:0.82rem;">
+            {% if order.tracking_number %}
+            <span>{{ order.courier }}</span><br>
+            <code style="font-size:0.78rem;">{{ order.tracking_number }}</code>
+            {% else %}—{% endif %}
+          </td>
+          <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td style="font-size:0.8rem;color:var(--gray);">{{ order.created_at|date:"d M Y" }}</td>
+          <td>
+            {% if order.status == 'pending' %}
+            <a href="{% url 'cancel_order' order.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Cancel order #{{ order.pk }}?')">✕ Cancel</a>
+            {% elif order.status == 'cancelled' %}
+            <span style="color:var(--gray);font-size:0.8rem;">Cancelled</span>
+            {% else %}
+            <span style="color:var(--gray);font-size:0.8rem;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <span class="icon">📦</span>
+    <h3>No Orders Yet</h3>
+    <p>Browse products and place your first order to start earning!</p>
+    <a href="{% url 'products' %}" class="btn btn-primary" style="margin-top:1rem;">🛍️ Browse Products</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

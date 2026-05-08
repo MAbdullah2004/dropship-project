@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="EliteStore - Pakistan's #1 Dropshipping Platform connecting wholesalers and resellers">
+<title>{% block title %}EliteStore - Pakistan's #1 Dropshipping Platform{% endblock %}</title>
+{% load static %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<!-- Toast Messages -->
+<div class="toast-container" id="toastContainer">
+{% if messages %}
+  {% for msg in messages %}
+  <div class="toast toast-{{ msg.tags }}" role="alert">
+    <span class="toast-icon">{% if msg.tags == 'success' %}✓{% elif msg.tags == 'error' %}✕{% elif msg.tags == 'warning' %}⚠{% else %}ℹ{% endif %}</span>
+    <span>{{ msg }}</span>
+    <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+  </div>
+  {% endfor %}
+{% endif %}
+</div>
+
+<!-- Navbar -->
+<nav class="navbar" id="mainNav">
+  <a href="{% url 'home' %}" class="navbar-brand">
+    <span class="brand-elite">Elite</span><span class="brand-store">Store</span>
+  </a>
+
+  <div class="nav-links" id="navLinks">
+    {% if user.is_authenticated %}
+      <span class="badge-role badge-{{ user.role }}">{{ user.get_role_display }}</span>
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      {% if user.role == 'reseller' %}
+        <a href="{% url 'products' %}">Products</a>
+        <a href="{% url 'my_orders' %}">My Orders</a>
+      {% elif user.role == 'wholesaler' %}
+        <a href="{% url 'my_products' %}">My Products</a>
+        <a href="{% url 'add_product' %}">Add Product</a>
+      {% elif user.role == 'admin' %}
+        <a href="{% url 'admin_users' %}">Users</a>
+        <a href="{% url 'admin_products' %}">Products</a>
+        <a href="{% url 'admin_orders' %}">Orders</a>
+      {% endif %}
+      <a href="{% url 'logout' %}" class="nav-logout">Logout</a>
+    {% else %}
+      <a href="{% url 'products' %}">Browse</a>
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}">Get Started</a>
+      <a href="{% url 'admin_login' %}">🛡️ Admin</a>
+    {% endif %}
+  </div>
+
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+{% block content %}{% endblock %}
+
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+// Auto-dismiss toasts
+setTimeout(() => {
+  document.querySelectorAll('.toast').forEach(el => {
+    el.style.animation = 'slideOut 0.4s ease forwards';
+    setTimeout(() => el.remove(), 400);
+  });
+}, 5000);
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

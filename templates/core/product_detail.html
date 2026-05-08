@@ -1,0 +1,64 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}{{ product.name }} — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div style="margin-bottom:1rem;"><a href="{% url 'products' %}" style="color:var(--gray);font-size:0.88rem;">← Back to Products</a></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;" class="product-detail-grid">
+  <!-- Images -->
+  <div>
+    <div style="border-radius:var(--radius-lg);overflow:hidden;background:var(--light-gray);aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:5rem;margin-bottom:1rem;">
+      {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;" id="mainImg">
+      {% else %}📦{% endif %}
+    </div>
+    {% if product.image2 or product.image3 %}
+    <div style="display:flex;gap:0.8rem;">
+      {% if product.image %}<img src="{{ product.image.url }}" onclick="document.getElementById('mainImg').src=this.src" style="width:70px;height:70px;object-fit:cover;border-radius:10px;cursor:pointer;border:2px solid var(--primary);">{% endif %}
+      {% if product.image2 %}<img src="{{ product.image2.url }}" onclick="document.getElementById('mainImg').src=this.src" style="width:70px;height:70px;object-fit:cover;border-radius:10px;cursor:pointer;border:2px solid var(--border);">{% endif %}
+      {% if product.image3 %}<img src="{{ product.image3.url }}" onclick="document.getElementById('mainImg').src=this.src" style="width:70px;height:70px;object-fit:cover;border-radius:10px;cursor:pointer;border:2px solid var(--border);">{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Info -->
+  <div>
+    {% if product.category %}<span style="font-size:0.8rem;color:var(--primary);font-weight:600;text-transform:uppercase;">{{ product.category.name }}</span>{% endif %}
+    <h1 style="font-size:1.6rem;font-weight:800;margin:0.5rem 0 1rem;line-height:1.3;font-family:'Space Grotesk',sans-serif;">{{ product.name }}</h1>
+
+    <div style="background:var(--primary-light);border-radius:var(--radius);padding:1.2rem;margin-bottom:1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <div style="font-size:0.78rem;color:var(--gray);font-weight:600;text-transform:uppercase;">Wholesale Price</div>
+          <div style="font-size:1.8rem;font-weight:800;color:var(--primary);font-family:'Space Grotesk',sans-serif;">Rs. {{ product.wholesale_price }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;color:var(--gray);font-weight:600;text-transform:uppercase;">Suggested Retail</div>
+          <div style="font-size:1.8rem;font-weight:800;color:var(--success);font-family:'Space Grotesk',sans-serif;">Rs. {{ product.suggested_retail_price }}</div>
+        </div>
+      </div>
+      <div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid rgba(124,58,237,0.1);font-size:0.88rem;">
+        💰 Potential Profit: <strong style="color:var(--success)">Rs. {{ product.suggested_retail_price|add:"-"|add:product.wholesale_price }}</strong> per order
+      </div>
+    </div>
+
+    <div style="margin-bottom:1.2rem;font-size:0.88rem;color:var(--gray);">
+      <div style="margin-bottom:0.4rem;">📦 Stock Available: <strong style="color:var(--dark)">{{ product.stock }} units</strong></div>
+      {% if product.weight %}<div>⚖️ Weight: <strong style="color:var(--dark)">{{ product.weight }} kg</strong></div>{% endif %}
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      <h3 style="font-size:0.88rem;font-weight:700;text-transform:uppercase;color:var(--gray);margin-bottom:0.5rem;">Description</h3>
+      <p style="color:var(--dark);font-size:0.9rem;line-height:1.7;">{{ product.description }}</p>
+    </div>
+
+    {% if user.role == 'reseller' %}
+    <a href="{% url 'place_order_product' product.slug %}" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">🛒 Place Order Now</a>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+@media(max-width:768px){
+  .product-detail-grid{grid-template-columns:1fr!important;}
+}
+</style>
+{% endblock %}

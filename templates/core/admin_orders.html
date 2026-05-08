@@ -1,0 +1,106 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Orders Management — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">🛒 Orders Management</h1>
+    <p class="page-subtitle">Track and update all customer orders</p>
+  </div>
+</div>
+
+<div class="filters">
+  <a href="{% url 'admin_orders' %}" class="filter-btn {% if not request.GET.status %}active{% endif %}">All</a>
+  <a href="{% url 'admin_orders' %}?status=pending" class="filter-btn {% if request.GET.status == 'pending' %}active{% endif %}">⏳ Pending</a>
+  <a href="{% url 'admin_orders' %}?status=confirmed" class="filter-btn {% if request.GET.status == 'confirmed' %}active{% endif %}">✓ Confirmed</a>
+  <a href="{% url 'admin_orders' %}?status=dispatched" class="filter-btn {% if request.GET.status == 'dispatched' %}active{% endif %}">🚚 Dispatched</a>
+  <a href="{% url 'admin_orders' %}?status=delivered" class="filter-btn {% if request.GET.status == 'delivered' %}active{% endif %}">✅ Delivered</a>
+  <a href="{% url 'admin_orders' %}?status=cancelled" class="filter-btn {% if request.GET.status == 'cancelled' %}active{% endif %}">✕ Cancelled</a>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th>Reseller</th>
+          <th>Customer</th>
+          <th>City</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><strong>#{{ order.pk }}</strong><br><small style="color:var(--gray)">{{ order.created_at|date:"d M" }}</small></td>
+          <td style="font-size:0.82rem;max-width:160px">{{ order.product.name|truncatechars:40 }}</td>
+          <td style="font-size:0.82rem">{{ order.reseller.username }}</td>
+          <td style="font-size:0.82rem"><strong>{{ order.customer_name }}</strong><br><small>{{ order.customer_phone }}</small></td>
+          <td style="font-size:0.82rem">{{ order.customer_city }}</td>
+          <td>{{ order.quantity }}</td>
+          <td style="font-weight:700;color:var(--primary)">Rs.{{ order.reseller_price }}</td>
+          <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="openOrderModal({{ order.pk }},'{{ order.status }}')">Update</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9"><div class="empty-state"><span class="icon">📭</span><h3>No orders found</h3></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Update Modal -->
+{% for order in orders %}
+<div class="modal-overlay" id="modal-{{ order.pk }}">
+  <div class="modal-box">
+    <div class="modal-title">Update Order #{{ order.pk }}</div>
+    <form method="post" action="{% url 'update_order_status' order.pk %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-control">
+          <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+          <option value="dispatched" {% if order.status == 'dispatched' %}selected{% endif %}>Dispatched</option>
+          <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+          <option value="returned" {% if order.status == 'returned' %}selected{% endif %}>Returned</option>
+          <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tracking Number</label>
+        <input type="text" name="tracking_number" class="form-control" value="{{ order.tracking_number }}" placeholder="e.g. TCS-12345">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Courier</label>
+        <input type="text" name="courier" class="form-control" value="{{ order.courier }}" placeholder="e.g. TCS, Leopards">
+      </div>
+      <div style="display:flex;gap:0.8rem;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-{{ order.pk }}')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script>
+function openOrderModal(id, status) {
+  document.getElementById('modal-' + id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Dashboard — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">👋 Welcome, {{ user.first_name|default:user.username }}!</h1>
+    <p class="page-subtitle">{{ user.get_role_display }} Dashboard — EliteStore</p>
+  </div>
+</div>
+
+{% if user.role == 'admin' %}
+<div class="stats-grid">
+  <div class="stat-card animate-on-scroll">
+    <div class="stat-icon">👥</div>
+    <div class="stat-value" data-count="{{ total_users }}">{{ total_users }}</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+  <div class="stat-card warning animate-on-scroll">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value" data-count="{{ pending_users }}">{{ pending_users }}</div>
+    <div class="stat-label">Pending Verification</div>
+  </div>
+  <div class="stat-card accent animate-on-scroll">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value" data-count="{{ total_products }}">{{ total_products }}</div>
+    <div class="stat-label">Total Products</div>
+  </div>
+  <div class="stat-card success animate-on-scroll">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value" data-count="{{ total_orders }}">{{ total_orders }}</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+  <div class="stat-card danger animate-on-scroll">
+    <div class="stat-icon">💳</div>
+    <div class="stat-value" data-count="{{ pending_payouts }}">{{ pending_payouts }}</div>
+    <div class="stat-label">Pending Payouts</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap;">
+  <div class="card">
+    <div class="card-title">⚡ Quick Actions</div>
+    <div style="display:flex;flex-direction:column;gap:0.8rem;">
+      <a href="{% url 'admin_users' %}?verified=0" class="btn btn-warning" style="justify-content:center;">⏳ Review Pending Users ({{ pending_users }})</a>
+      <a href="{% url 'admin_products' %}?status=pending" class="btn btn-primary" style="justify-content:center;">📦 Review Pending Products ({{ pending_products }})</a>
+      <a href="{% url 'admin_payouts' %}" class="btn btn-success" style="justify-content:center;">💰 Process Payouts ({{ pending_payouts }})</a>
+      <a href="{% url 'admin_orders' %}" class="btn btn-ghost" style="justify-content:center;">🛒 Manage All Orders</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🕐 Recent Orders</div>
+    {% if recent_orders %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Order</th><th>Reseller</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td><strong>#{{ order.pk }}</strong><br><small style="color:var(--gray)">{{ order.product.name|truncatechars:30 }}</small></td>
+            <td>{{ order.reseller.username }}</td>
+            <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<div class="empty-state"><span class="icon">📭</span><p>No orders yet</p></div>{% endif %}
+  </div>
+</div>
+
+{% elif user.role == 'wholesaler' %}
+<div class="stats-grid">
+  <div class="stat-card animate-on-scroll">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value" data-count="{{ my_products }}">{{ my_products }}</div>
+    <div class="stat-label">Total Products</div>
+  </div>
+  <div class="stat-card success animate-on-scroll">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value" data-count="{{ approved_products }}">{{ approved_products }}</div>
+    <div class="stat-label">Approved</div>
+  </div>
+  <div class="stat-card warning animate-on-scroll">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value" data-count="{{ pending_products }}">{{ pending_products }}</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat-card accent animate-on-scroll">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value" data-count="{{ total_orders }}">{{ total_orders }}</div>
+    <div class="stat-label">Orders Received</div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+  <div class="card">
+    <div class="card-title">⚡ Quick Actions</div>
+    <div style="display:flex;flex-direction:column;gap:0.8rem;">
+      <a href="{% url 'add_product' %}" class="btn btn-primary" style="justify-content:center;">➕ Add New Product</a>
+      <a href="{% url 'my_products' %}" class="btn btn-ghost" style="justify-content:center;">📦 View My Products</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📦 Recent Products</div>
+    {% if recent_products %}
+    <div style="display:flex;flex-direction:column;gap:0.8rem;">
+      {% for p in recent_products %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:0.88rem;font-weight:500">{{ p.name|truncatechars:35 }}</span>
+        <span class="badge badge-{{ p.status }}">{{ p.get_status_display }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="empty-state"><span class="icon">📭</span><p>No products yet</p></div>{% endif %}
+  </div>
+</div>
+
+{% elif user.role == 'reseller' %}
+<div class="stats-grid">
+  <div class="stat-card animate-on-scroll">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value" data-count="{{ total_orders }}">{{ total_orders }}</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+  <div class="stat-card success animate-on-scroll">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value" data-count="{{ delivered_orders }}">{{ delivered_orders }}</div>
+    <div class="stat-label">Delivered</div>
+  </div>
+  <div class="stat-card warning animate-on-scroll">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value" data-count="{{ pending_orders }}">{{ pending_orders }}</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat-card accent animate-on-scroll">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">Rs.{{ total_profit|floatformat:0 }}</div>
+    <div class="stat-label">Total Profit</div>
+  </div>
+  <div class="stat-card danger animate-on-scroll">
+    <div class="stat-icon">🛍️</div>
+    <div class="stat-value" data-count="{{ available_products }}">{{ available_products }}</div>
+    <div class="stat-label">Available Products</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;">
+  <div class="card">
+    <div class="card-title">⚡ Quick Actions</div>
+    <div style="display:flex;flex-direction:column;gap:0.8rem;">
+      <a href="{% url 'products' %}" class="btn btn-primary" style="justify-content:center;">🛍️ Browse All Products</a>
+      <a href="{% url 'place_order' %}" class="btn btn-accent" style="justify-content:center;">➕ Place New Order</a>
+      <a href="{% url 'my_orders' %}" class="btn btn-ghost" style="justify-content:center;">📦 View My Orders</a>
+      <a href="{% url 'request_payout' %}" class="btn btn-success" style="justify-content:center;">💰 Request Payout</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🕐 Recent Orders</div>
+    {% if recent_orders %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Order</th><th>Product</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td><strong>#{{ order.pk }}</strong></td>
+            <td style="font-size:0.82rem">{{ order.product.name|truncatechars:28 }}</td>
+            <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<div class="empty-state" style="padding:2rem;"><span class="icon" style="font-size:2.5rem;">📭</span><p>No orders yet</p></div>{% endif %}
+  </div>
+</div>
+
+<!-- Featured Products for Reseller -->
+<div class="card">
+  <div class="card-title" style="justify-content:space-between;">
+    🛍️ Products Available to Sell
+    <a href="{% url 'products' %}" class="btn btn-outline btn-sm">View All →</a>
+  </div>
+  {% if featured_products %}
+  <div class="products-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));">
+    {% for product in featured_products %}
+    <div class="product-card">
+      <a href="{% url 'product_detail' product.slug %}" style="display:block;text-decoration:none;color:inherit;">
+        <div class="product-img">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+            <span style="font-size:3.5rem;">📦</span>
+          {% endif %}
+        </div>
+        <div class="product-info">
+          <div class="product-name">{{ product.name|truncatechars:45 }}</div>
+          <div class="product-price">Rs. {{ product.wholesale_price }}</div>
+          <div class="product-ws-price">Retail: Rs. {{ product.suggested_retail_price }}</div>
+        </div>
+      </a>
+      <div style="padding:0 1rem 1rem;">
+        <a href="{% url 'place_order_product' product.slug %}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">🛒 Order Now</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state" style="padding:2rem;">
+    <span class="icon" style="font-size:3rem;">🛍️</span>
+    <h3>No Products Available Yet</h3>
+    <p>Admin is reviewing products. Check back soon!</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endif %}
+{% endblock %}

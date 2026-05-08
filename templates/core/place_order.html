@@ -1,0 +1,100 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Place Order — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">🛒 Place New Order</h1>
+    <p class="page-subtitle">Enter customer details to place an order</p>
+  </div>
+  <a href="{% url 'products' %}" class="btn btn-ghost">← Browse Products</a>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;align-items:start;" class="order-grid">
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+
+      {% if product %}
+      <input type="hidden" name="product" value="{{ product.pk }}">
+      <div style="background:var(--primary-light);border-radius:12px;padding:1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;">
+        {% if product.image %}<img src="{{ product.image.url }}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;">{% else %}<div style="width:60px;height:60px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">📦</div>{% endif %}
+        <div>
+          <div style="font-weight:700;font-size:0.95rem;">{{ product.name|truncatechars:50 }}</div>
+          <div style="color:var(--primary);font-weight:800;">Rs. {{ product.wholesale_price }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="form-group">
+        <label class="form-label">Select Product *</label>
+        <select name="product" class="form-control" required>
+          <option value="">— Choose a product —</option>
+          {{ form.product }}
+        </select>
+      </div>
+      {% endif %}
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Your Selling Price (Rs.) *</label>
+          <input type="number" name="reseller_price" class="form-control" step="0.01" min="0"
+            value="{{ form.reseller_price.value|default:'' }}"
+            {% if product %}placeholder="Min: {{ product.wholesale_price }}"{% endif %} required>
+          <p class="form-hint">Set higher than wholesale to earn profit</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantity *</label>
+          <input type="number" name="quantity" class="form-control" min="1" value="{{ form.quantity.value|default:'1' }}" required>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:1.2rem 0;">
+      <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:1rem;">📍 Customer Details</h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Customer Name *</label>
+          <input type="text" name="customer_name" class="form-control" value="{{ form.customer_name.value|default:'' }}" placeholder="Full Name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Customer Phone *</label>
+          <input type="text" name="customer_phone" class="form-control" value="{{ form.customer_phone.value|default:'' }}" placeholder="03xx-xxxxxxx" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Customer City *</label>
+        <input type="text" name="customer_city" class="form-control" value="{{ form.customer_city.value|default:'' }}" placeholder="Karachi, Lahore..." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Delivery Address *</label>
+        <textarea name="customer_address" class="form-control" rows="3" placeholder="House/Flat #, Street, Area..." required>{{ form.customer_address.value|default:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Order Notes (optional)</label>
+        <textarea name="notes" class="form-control" rows="2" placeholder="Any special instructions...">{{ form.notes.value|default:'' }}</textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">🚀 Place Order</button>
+    </form>
+  </div>
+
+  {% if product %}
+  <div class="card" style="position:sticky;top:88px;">
+    <div class="card-title">💰 Profit Calculator</div>
+    <div style="font-size:0.85rem;color:var(--gray);margin-bottom:0.8rem;">Wholesale Cost</div>
+    <div style="font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:1rem;">Rs. {{ product.wholesale_price }}</div>
+    <div style="font-size:0.85rem;color:var(--gray);margin-bottom:0.4rem;">If you sell at suggested price:</div>
+    <div style="font-size:1.2rem;font-weight:700;color:var(--success);">Rs. {{ product.suggested_retail_price }}</div>
+    <div style="margin-top:1rem;padding:0.8rem;background:var(--primary-light);border-radius:10px;text-align:center;">
+      <div style="font-size:0.78rem;color:var(--gray);">Potential Profit/Order</div>
+      <div style="font-size:1.5rem;font-weight:800;color:var(--primary);">Rs. {{ product.suggested_retail_price }}</div>
+    </div>
+    <p style="font-size:0.78rem;color:var(--gray);margin-top:0.8rem;text-align:center;">Set your price above Rs. {{ product.wholesale_price }} to earn profit</p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+@media(max-width:768px){.order-grid{grid-template-columns:1fr!important;}}
+</style>
+{% endblock %}

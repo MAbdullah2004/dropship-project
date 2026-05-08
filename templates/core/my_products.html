@@ -1,0 +1,72 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}My Products — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">📦 My Products</h1>
+    <p class="page-subtitle">Manage your product listings</p>
+  </div>
+  <a href="{% url 'add_product' %}" class="btn btn-primary">➕ Add New Product</a>
+</div>
+
+{% if products %}
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Wholesale Price</th>
+          <th>Retail Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Added</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+              {% else %}
+                <div style="width:44px;height:44px;background:var(--light-gray);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📦</div>
+              {% endif %}
+              <strong style="font-size:0.88rem">{{ product.name|truncatechars:40 }}</strong>
+            </div>
+          </td>
+          <td style="font-size:0.85rem">{{ product.category.name|default:"—" }}</td>
+          <td style="font-weight:700;color:var(--primary)">Rs. {{ product.wholesale_price }}</td>
+          <td style="font-size:0.85rem;color:var(--gray)">Rs. {{ product.suggested_retail_price }}</td>
+          <td>{{ product.stock }}</td>
+          <td><span class="badge badge-{{ product.status }}">{{ product.get_status_display }}</span></td>
+          <td style="font-size:0.82rem;color:var(--gray)">{{ product.created_at|date:"d M Y" }}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="{% url 'edit_product' product.pk %}" class="btn btn-outline btn-sm">✏ Edit</a>
+              <form method="post" action="{% url 'delete_product' product.pk %}" onsubmit="return confirm('Delete {{ product.name }}? This cannot be undone.')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <span class="icon">📦</span>
+    <h3>No Products Yet</h3>
+    <p>Start by adding your first product for resellers to sell.</p>
+    <a href="{% url 'add_product' %}" class="btn btn-primary" style="margin-top:1rem;">➕ Add First Product</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -33,6 +33,9 @@ Thumbs.db
 # Secrets
 .env
 *.env
+<<<<<<< HEAD
 .venv/
 __pycache__/
 db.sqlite3
+=======
+>>>>>>> fa1bac1 (Initial commit - EliteStore dropshipping platform)

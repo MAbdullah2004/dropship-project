@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% block title %}Admin Login — EliteStore{% endblock %}
+{% block content %}
+<div class="auth-wrapper" style="background:linear-gradient(135deg,#0F0F1A 0%,#1a0530 50%,#0F0F1A 100%);">
+  <div class="auth-orb auth-orb-1" style="background:#7C3AED;"></div>
+  <div class="auth-orb auth-orb-2" style="background:#F97316;"></div>
+  <div class="auth-card" style="border-top:4px solid var(--primary);">
+    <div class="auth-logo">
+      <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1rem;">🛡️</div>
+      <div class="logo-text"><span style="color:var(--primary)">Admin</span> <span style="color:var(--accent)">Portal</span></div>
+      <p style="color:var(--danger);font-weight:600;font-size:0.82rem;margin-top:6px;">⚠️ Restricted Access — Authorized Personnel Only</p>
+    </div>
+
+    <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;padding:0.8rem 1rem;margin-bottom:1.5rem;font-size:0.82rem;color:#92400E;">
+      🔐 This page is for <strong>administrators only</strong>. Resellers and Wholesalers should use the
+      <a href="{% url 'login' %}" style="color:var(--primary);font-weight:600;">regular login page</a>.
+    </div>
+
+    <form method="post" action="{% url 'admin_login' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="admin_username">Admin Username</label>
+        <input type="text" name="username" id="admin_username" class="form-control" placeholder="Enter admin username" required autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="admin_password">Admin Password</label>
+        <input type="password" name="password" id="admin_password" class="form-control" placeholder="Enter admin password" required autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:0.5rem;background:linear-gradient(135deg,var(--primary),var(--primary-dark));">
+        🛡️ Access Admin Panel
+      </button>
+    </form>
+
+    <p style="text-align:center;margin-top:1.5rem;color:var(--gray);font-size:0.82rem;">
+      <a href="{% url 'home' %}" style="color:var(--gray);">← Back to Home</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

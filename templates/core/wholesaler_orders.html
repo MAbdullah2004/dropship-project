@@ -1,0 +1,86 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Customer Orders — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">🚚 Customer Orders</h1>
+    <p class="page-subtitle">Orders placed for your products — dispatch them with tracking info</p>
+  </div>
+</div>
+
+<div class="filters">
+  <a href="{% url 'wholesaler_orders' %}" class="filter-btn {% if not status_filter %}active{% endif %}">All Orders</a>
+  <a href="{% url 'wholesaler_orders' %}?status=confirmed" class="filter-btn {% if status_filter == 'confirmed' %}active{% endif %}">✅ Confirmed</a>
+  <a href="{% url 'wholesaler_orders' %}?status=pending" class="filter-btn {% if status_filter == 'pending' %}active{% endif %}">⏳ Pending</a>
+  <a href="{% url 'wholesaler_orders' %}?status=dispatched" class="filter-btn {% if status_filter == 'dispatched' %}active{% endif %}">🚚 Dispatched</a>
+  <a href="{% url 'wholesaler_orders' %}?status=delivered" class="filter-btn {% if status_filter == 'delivered' %}active{% endif %}">📬 Delivered</a>
+  <a href="{% url 'wholesaler_orders' %}?status=cancelled" class="filter-btn {% if status_filter == 'cancelled' %}active{% endif %}">❌ Cancelled</a>
+</div>
+
+{% if orders %}
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th>Reseller</th>
+          <th>Customer</th>
+          <th>City</th>
+          <th>Qty</th>
+          <th>Wholesale Price</th>
+          <th>Status</th>
+          <th>Tracking</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><strong>#{{ order.pk }}</strong></td>
+          <td style="font-size:0.82rem;max-width:140px;">
+            {% if order.product.image %}
+            <img src="{{ order.product.image.url }}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:6px;">
+            {% endif %}
+            {{ order.product.name|truncatechars:35 }}
+          </td>
+          <td style="font-size:0.82rem;">{{ order.reseller.username }}<br><small style="color:var(--gray);">{{ order.reseller.phone|default:"" }}</small></td>
+          <td style="font-size:0.82rem;"><strong>{{ order.customer_name }}</strong><br><small style="color:var(--gray);">{{ order.customer_phone }}</small></td>
+          <td style="font-size:0.82rem;">{{ order.customer_city }}</td>
+          <td><strong>{{ order.quantity }}</strong></td>
+          <td style="font-weight:700;color:var(--primary);">Rs. {{ order.product.wholesale_price }}</td>
+          <td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td style="font-size:0.8rem;">
+            {% if order.tracking_number %}
+            <strong>{{ order.courier }}</strong><br>
+            <code style="font-size:0.75rem;">{{ order.tracking_number }}</code>
+            {% else %}<span style="color:var(--gray);">Not dispatched</span>{% endif %}
+          </td>
+          <td style="font-size:0.8rem;color:var(--gray);">{{ order.created_at|date:"d M Y" }}</td>
+          <td>
+            {% if order.status == 'confirmed' or order.status == 'pending' %}
+            <a href="{% url 'dispatch_order' order.pk %}" class="btn btn-primary btn-sm">🚚 Dispatch</a>
+            {% elif order.status == 'dispatched' %}
+            <span style="color:var(--success);font-size:0.82rem;font-weight:600;">✅ Dispatched</span>
+            {% else %}
+            <span style="color:var(--gray);font-size:0.8rem;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <span class="icon">🚚</span>
+    <h3>No Orders Yet</h3>
+    <p>Orders placed for your products will appear here. Make sure your products are approved by admin.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

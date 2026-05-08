@@ -1,0 +1,72 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Products Management — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">📦 Products Management</h1>
+    <p class="page-subtitle">Approve, reject or delete wholesaler product submissions</p>
+  </div>
+</div>
+
+<div class="filters">
+  <a href="{% url 'admin_products' %}" class="filter-btn {% if not request.GET.status %}active{% endif %}">All Products</a>
+  <a href="{% url 'admin_products' %}?status=pending" class="filter-btn {% if request.GET.status == 'pending' %}active{% endif %}">⏳ Pending</a>
+  <a href="{% url 'admin_products' %}?status=approved" class="filter-btn {% if request.GET.status == 'approved' %}active{% endif %}">✅ Approved</a>
+  <a href="{% url 'admin_products' %}?status=rejected" class="filter-btn {% if request.GET.status == 'rejected' %}active{% endif %}">❌ Rejected</a>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Wholesaler</th>
+          <th>Wholesale Price</th>
+          <th>Retail Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+              {% else %}
+                <div style="width:44px;height:44px;background:var(--light-gray);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">📦</div>
+              {% endif %}
+              <div>
+                <strong style="font-size:0.88rem">{{ product.name|truncatechars:40 }}</strong><br>
+                <small style="color:var(--gray)">{{ product.category.name|default:"No Category" }}</small>
+              </div>
+            </div>
+          </td>
+          <td style="font-size:0.85rem">{{ product.wholesaler.username }}<br><small style="color:var(--gray)">{{ product.wholesaler.business_name|default:"" }}</small></td>
+          <td style="font-weight:700;color:var(--primary)">Rs. {{ product.wholesale_price }}</td>
+          <td style="font-size:0.85rem;color:var(--gray)">Rs. {{ product.suggested_retail_price }}</td>
+          <td>{{ product.stock }}</td>
+          <td><span class="badge badge-{{ product.status }}">{{ product.get_status_display }}</span></td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              {% if product.status != 'approved' %}
+              <a href="{% url 'approve_product' product.pk %}" class="btn btn-success btn-sm">✓ Approve</a>
+              {% endif %}
+              {% if product.status != 'rejected' %}
+              <a href="{% url 'reject_product' product.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Reject this product?')">✕ Reject</a>
+              {% endif %}
+              <a href="{% url 'delete_product_admin' product.pk %}" class="btn btn-sm" style="background:#6B7280;color:white;" onclick="return confirm('Delete {{ product.name }} permanently?')">🗑 Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7"><div class="empty-state"><span class="icon">📭</span><h3>No products found</h3></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

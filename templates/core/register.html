@@ -1,0 +1,157 @@
+{% extends 'core/base.html' %}
+{% block title %}Register — EliteStore{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-orb auth-orb-1"></div>
+  <div class="auth-orb auth-orb-2"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-text"><span style="color:var(--primary)">Elite</span><span style="color:var(--accent)">Store</span></div>
+      <p>Create your free account today</p>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if form.errors %}
+      <div style="background:#FEE2E2;border:1.5px solid #FCA5A5;border-radius:10px;padding:1rem;margin-bottom:1.2rem;font-size:0.85rem;color:#991B1B;">
+        <strong>⚠ Please fix these errors to create your account:</strong>
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}<div style="margin-top:4px;">• <b>{{ field|title }}</b>: {{ error }}</div>{% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Role Selection -->
+      <div class="form-group">
+        <label class="form-label">I want to join as</label>
+        <div class="radio-cards">
+          <div class="radio-card">
+            <input type="radio" name="role" id="role_reseller" value="reseller" checked>
+            <label for="role_reseller">
+              <span class="role-icon">🏪</span>
+              <strong>Reseller</strong>
+              <span style="font-weight:400;color:var(--gray);font-size:0.78rem">Sell products & earn profit</span>
+            </label>
+          </div>
+          <div class="radio-card">
+            <input type="radio" name="role" id="role_wholesaler" value="wholesaler">
+            <label for="role_wholesaler">
+              <span class="role-icon">🏭</span>
+              <strong>Wholesaler</strong>
+              <span style="font-weight:400;color:var(--gray);font-size:0.78rem">Supply products to resellers</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" name="first_name" class="form-control" placeholder="Ali" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" name="last_name" class="form-control" placeholder="Ahmed">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="unique_username" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Business Name</label>
+        <input type="text" name="business_name" class="form-control" placeholder="Your Shop / Business Name" required>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="text" name="phone" class="form-control" placeholder="03xx-xxxxxxx" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <input type="text" name="city" class="form-control" placeholder="Karachi" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">CNIC Number</label>
+        <input type="text" name="cnic" class="form-control" placeholder="xxxxx-xxxxxxx-x" required>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Password <span style="font-size:0.72rem;color:var(--gray);font-weight:400;">(min 6 characters)</span></label>
+          <input type="password" name="password1" class="form-control" required autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" name="password2" class="form-control" required autocomplete="new-password">
+        </div>
+      </div>
+
+      <!-- Bank / Payment Info -->
+      <div style="border:1.5px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem;background:var(--light-gray);">
+        <h4 style="font-size:0.9rem;font-weight:700;color:var(--dark);margin-bottom:1rem;">🏦 Bank & Payment Info <span style="font-weight:400;color:var(--gray);font-size:0.78rem;">(for payouts)</span></h4>
+        <div class="form-group">
+          <label class="form-label">Bank Name</label>
+          <select name="bank_name" class="form-control">
+            <option value="">— Select Bank —</option>
+            <option value="HBL">HBL – Habib Bank Limited</option>
+            <option value="UBL">UBL – United Bank Limited</option>
+            <option value="MCB">MCB Bank</option>
+            <option value="Meezan Bank">Meezan Bank</option>
+            <option value="Bank Alfalah">Bank Alfalah</option>
+            <option value="Allied Bank">Allied Bank</option>
+            <option value="Askari Bank">Askari Bank</option>
+            <option value="Standard Chartered">Standard Chartered</option>
+            <option value="Sadapay">Sadapay</option>
+            <option value="Nayapay">Nayapay</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Account Title</label>
+            <input type="text" name="bank_account_title" class="form-control" placeholder="Full name on account">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account Number / IBAN</label>
+            <input type="text" name="bank_account_number" class="form-control" placeholder="PK00XXXX0000000000000000">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">EasyPaisa Number</label>
+            <input type="text" name="easypaisa_number" class="form-control" placeholder="03xx-xxxxxxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label">JazzCash Number</label>
+            <input type="text" name="jazzcash_number" class="form-control" placeholder="03xx-xxxxxxx">
+          </div>
+        </div>
+      </div>
+
+      {% if form.errors %}
+      <div style="background:#FEE2E2;border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:0.85rem;color:#991B1B;">
+        {% for field in form %}{% for error in field.errors %}<div>⚠ {{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}
+        {% for error in form.non_field_errors %}<div>⚠ {{ error }}</div>{% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:0.5rem;">Create Account →</button>
+    </form>
+    <p style="text-align:center;margin-top:1.5rem;color:var(--gray);font-size:0.88rem;">
+      Already have an account? <a href="{% url 'login' %}" style="color:var(--primary);font-weight:600;">Sign in here</a>
+    </p>
+    <p style="text-align:center;margin-top:0.8rem;font-size:0.78rem;color:var(--gray);">⏳ After registration, admin will verify your account before you can login.</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}{% if edit %}Edit Product{% else %}Add Product{% endif %} — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{% if edit %}✏️ Edit Product{% else %}➕ Add New Product{% endif %}</h1>
+    <p class="page-subtitle">{% if edit %}Update your product details{% else %}Submit a product for admin approval{% endif %}</p>
+  </div>
+  <a href="{% url 'my_products' %}" class="btn btn-ghost">← Back to Products</a>
+</div>
+
+<div class="card" style="max-width:860px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label class="form-label">Product Name *</label>
+      <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}" placeholder="e.g. Premium Cotton T-Shirt" required>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-control">
+          <option value="">— Select Category —</option>
+          {% for cat in categories %}
+          <option value="{{ cat.pk }}" {% if form.instance.category_id == cat.pk %}selected{% endif %}>{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stock Quantity *</label>
+        <input type="number" name="stock" class="form-control" value="{{ form.stock.value|default:'0' }}" min="0" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description *</label>
+      <textarea name="description" class="form-control" rows="4" placeholder="Describe your product in detail..." required>{{ form.description.value|default:'' }}</textarea>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Wholesale Price (Rs.) *</label>
+        <input type="number" name="wholesale_price" class="form-control" value="{{ form.wholesale_price.value|default:'' }}" step="0.01" min="0" placeholder="500.00" required>
+        <p class="form-hint">Your cost price for resellers</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Suggested Retail Price (Rs.) *</label>
+        <input type="number" name="suggested_retail_price" class="form-control" value="{{ form.suggested_retail_price.value|default:'' }}" step="0.01" min="0" placeholder="800.00" required>
+        <p class="form-hint">Recommended selling price for customers</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Weight (kg)</label>
+      <input type="number" name="weight" class="form-control" value="{{ form.weight.value|default:'' }}" step="0.01" min="0" placeholder="0.5" style="max-width:200px;">
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      <label class="form-label">Product Images</label>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" style="font-weight:500;color:var(--gray)">Main Image</label>
+          <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(this,'prev1')">
+          {% if form.instance.image %}<img src="{{ form.instance.image.url }}" style="height:60px;margin-top:8px;border-radius:8px;">{% endif %}
+          <img id="prev1" style="display:none;height:60px;margin-top:8px;border-radius:8px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-weight:500;color:var(--gray)">Image 2</label>
+          <input type="file" name="image2" class="form-control" accept="image/*" onchange="previewImage(this,'prev2')">
+          {% if form.instance.image2 %}<img src="{{ form.instance.image2.url }}" style="height:60px;margin-top:8px;border-radius:8px;">{% endif %}
+          <img id="prev2" style="display:none;height:60px;margin-top:8px;border-radius:8px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-weight:500;color:var(--gray)">Image 3</label>
+          <input type="file" name="image3" class="form-control" accept="image/*" onchange="previewImage(this,'prev3')">
+          {% if form.instance.image3 %}<img src="{{ form.instance.image3.url }}" style="height:60px;margin-top:8px;border-radius:8px;">{% endif %}
+          <img id="prev3" style="display:none;height:60px;margin-top:8px;border-radius:8px;">
+        </div>
+      </div>
+    </div>
+
+    {% if form.errors %}
+    <div style="background:#FEE2E2;border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:0.85rem;color:#991B1B;">
+      {% for field in form %}{% for error in field.errors %}<div>⚠ {{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="display:flex;gap:1rem;">
+      <button type="submit" class="btn btn-primary btn-lg">{% if edit %}💾 Save Changes{% else %}🚀 Submit for Approval{% endif %}</button>
+      <a href="{% url 'my_products' %}" class="btn btn-ghost btn-lg">Cancel</a>
+    </div>
+    {% if not edit %}<p class="form-hint" style="margin-top:0.8rem;">⏳ Your product will be reviewed by admin before going live.</p>{% endif %}
+  </form>
+</div>
+{% endblock %}

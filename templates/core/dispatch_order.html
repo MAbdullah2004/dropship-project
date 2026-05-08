@@ -1,0 +1,66 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Dispatch Order #{{ order.pk }} — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">🚚 Dispatch Order #{{ order.pk }}</h1>
+    <p class="page-subtitle">Enter courier and tracking number to mark this order as dispatched</p>
+  </div>
+  <a href="{% url 'wholesaler_orders' %}" class="btn btn-outline">← Back to Orders</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:900px;">
+
+  <!-- Order Details -->
+  <div class="card" style="padding:1.5rem;">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.2rem;color:var(--dark);">📋 Order Details</h3>
+    <table style="width:100%;font-size:0.87rem;">
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Order ID</td><td style="font-weight:700;">#{{ order.pk }}</td></tr>
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Product</td><td><strong>{{ order.product.name }}</strong></td></tr>
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Qty</td><td>{{ order.quantity }}</td></tr>
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Reseller</td><td>{{ order.reseller.username }}</td></tr>
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Status</td><td><span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span></td></tr>
+    </table>
+
+    <hr style="margin:1rem 0;border-color:var(--border);">
+    <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:1rem;color:var(--dark);">📍 Delivery Address</h3>
+    <table style="width:100%;font-size:0.87rem;">
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Customer</td><td><strong>{{ order.customer_name }}</strong></td></tr>
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Phone</td><td>{{ order.customer_phone }}</td></tr>
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">City</td><td>{{ order.customer_city }}</td></tr>
+      <tr><td style="color:var(--gray);padding:0.4rem 0;">Address</td><td>{{ order.customer_address|default:"—" }}</td></tr>
+    </table>
+  </div>
+
+  <!-- Dispatch Form -->
+  <div class="card" style="padding:1.5rem;">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.2rem;color:var(--dark);">📦 Dispatch Info</h3>
+    <form method="post" action="{% url 'dispatch_order' order.pk %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Courier Company *</label>
+        <select name="courier" class="form-control" required>
+          <option value="">— Select Courier —</option>
+          <option value="TCS">TCS</option>
+          <option value="Leopards">Leopards Courier</option>
+          <option value="M&P Express">M&P Express</option>
+          <option value="PostEx">PostEx</option>
+          <option value="Trax">Trax</option>
+          <option value="BlueEX">BlueEX</option>
+          <option value="Pakistan Post">Pakistan Post</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tracking Number *</label>
+        <input type="text" name="tracking_number" class="form-control" placeholder="e.g. TCS123456789" required>
+        <p class="form-hint">Enter the tracking number provided by your courier company.</p>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">
+        🚚 Mark as Dispatched
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

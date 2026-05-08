@@ -1,0 +1,87 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Payouts Management — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">💰 Payouts Management</h1>
+    <p class="page-subtitle">Review and process reseller payout requests</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Reseller</th>
+          <th>Amount</th>
+          <th>Payment Method</th>
+          <th>Status</th>
+          <th>Requested</th>
+          <th>Transaction ID</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payout in payouts %}
+        <tr>
+          <td><strong>#{{ payout.pk }}</strong></td>
+          <td>
+            <strong>{{ payout.reseller.username }}</strong><br>
+            <small style="color:var(--gray)">{{ payout.reseller.business_name|default:payout.reseller.email }}</small>
+          </td>
+          <td style="font-weight:800;color:var(--primary);font-size:1rem">Rs. {{ payout.amount }}</td>
+          <td style="font-size:0.85rem">{{ payout.payment_method|default:"—" }}</td>
+          <td><span class="badge badge-{{ payout.status }}">{{ payout.get_status_display }}</span></td>
+          <td style="font-size:0.82rem;color:var(--gray)">{{ payout.requested_at|date:"d M Y" }}</td>
+          <td style="font-size:0.82rem">{{ payout.transaction_id|default:"—" }}</td>
+          <td>
+            {% if payout.status == 'pending' %}
+            <button class="btn btn-success btn-sm" onclick="document.getElementById('pay-modal-{{ payout.pk }}').classList.add('open')">Mark Paid</button>
+            {% else %}
+            <span style="font-size:0.82rem;color:var(--success)">✓ Paid {{ payout.paid_at|date:"d M" }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8"><div class="empty-state"><span class="icon">💳</span><h3>No payout requests yet</h3></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% for payout in payouts %}
+{% if payout.status == 'pending' %}
+<div class="modal-overlay" id="pay-modal-{{ payout.pk }}">
+  <div class="modal-box">
+    <div class="modal-title">💰 Mark Payout #{{ payout.pk }} as Paid</div>
+    <p style="color:var(--gray);font-size:0.88rem;margin-bottom:1.2rem">
+      Reseller: <strong>{{ payout.reseller.username }}</strong><br>
+      Amount: <strong style="color:var(--primary)">Rs. {{ payout.amount }}</strong><br>
+      Method: {{ payout.payment_method|default:"Not specified" }}
+    </p>
+    <form method="post" action="{% url 'mark_payout_paid' payout.pk %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Transaction ID</label>
+        <input type="text" name="transaction_id" class="form-control" placeholder="Bank/Easypaisa transaction ID" required>
+      </div>
+      <div style="display:flex;gap:0.8rem;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('pay-modal-{{ payout.pk }}').classList.remove('open')">Cancel</button>
+        <button type="submit" class="btn btn-success">✓ Confirm Payment</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+</script>
+{% endblock %}

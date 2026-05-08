@@ -1,0 +1,97 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Users Management — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">👥 Users Management</h1>
+    <p class="page-subtitle">Verify, reject or restore Reseller and Wholesaler accounts</p>
+  </div>
+</div>
+
+<div class="filters">
+  <a href="{% url 'admin_users' %}" class="filter-btn {% if not request.GET.role and not request.GET.verified %}active{% endif %}">All Users</a>
+  <a href="{% url 'admin_users' %}?verified=0" class="filter-btn {% if request.GET.verified == '0' %}active{% endif %}">⏳ Pending</a>
+  <a href="{% url 'admin_users' %}?verified=1" class="filter-btn {% if request.GET.verified == '1' %}active{% endif %}">✅ Verified</a>
+  <a href="{% url 'admin_users' %}?role=reseller" class="filter-btn {% if request.GET.role == 'reseller' %}active{% endif %}">🏪 Resellers</a>
+  <a href="{% url 'admin_users' %}?role=wholesaler" class="filter-btn {% if request.GET.role == 'wholesaler' %}active{% endif %}">🏭 Wholesalers</a>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Role</th>
+          <th>Business</th>
+          <th>Phone</th>
+          <th>City</th>
+          <th>Bank Info</th>
+          <th>Joined</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.9rem;flex-shrink:0;">
+                {{ u.first_name|first|upper|default:u.username|first|upper }}
+              </div>
+              <div>
+                <strong style="font-size:0.88rem;">{{ u.get_full_name|default:u.username }}</strong><br>
+                <small style="color:var(--gray);">{{ u.email }}</small>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge" style="background:{% if u.role == 'wholesaler' %}#EEF2FF;color:#4338CA{% else %}#DCFCE7;color:#15803D{% endif %};">
+              {% if u.role == 'wholesaler' %}🏭{% else %}🏪{% endif %} {{ u.role|capfirst }}
+            </span>
+          </td>
+          <td style="font-size:0.82rem;">{{ u.business_name|default:"—" }}</td>
+          <td style="font-size:0.82rem;">{{ u.phone|default:"—" }}</td>
+          <td style="font-size:0.82rem;">{{ u.city|default:"—" }}</td>
+          <td style="font-size:0.78rem;">
+            {% if u.bank_name %}
+            <div style="color:var(--dark);font-weight:600;">🏦 {{ u.bank_name }}</div>
+            <div style="color:var(--gray);">{{ u.bank_account_title|default:"" }}</div>
+            <div style="color:var(--gray);">{{ u.bank_account_number|default:"" }}</div>
+            {% if u.easypaisa_number %}<div style="color:#2E7D32;">EP: {{ u.easypaisa_number }}</div>{% endif %}
+            {% if u.jazzcash_number %}<div style="color:#E65100;">JC: {{ u.jazzcash_number }}</div>{% endif %}
+            {% else %}<span style="color:var(--gray);">—</span>{% endif %}
+          </td>
+          <td style="font-size:0.82rem;color:var(--gray);">{{ u.date_joined|date:"d M Y" }}</td>
+          <td>
+            {% if not u.is_active %}
+              <span class="badge badge-rejected">❌ Rejected</span>
+            {% elif u.is_verified %}
+              <span class="badge badge-approved">✅ Verified</span>
+            {% else %}
+              <span class="badge badge-pending">⏳ Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              {% if not u.is_verified or not u.is_active %}
+              <a href="{% url 'verify_user' u.pk %}" class="btn btn-success btn-sm">✓ Verify</a>
+              {% endif %}
+              {% if u.is_active %}
+              <a href="{% url 'reject_user' u.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Reject this user?')">✕ Reject</a>
+              {% endif %}
+              {% if not u.is_active %}
+              <a href="{% url 'restore_user' u.pk %}" class="btn btn-outline btn-sm">↩ Restore</a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8"><div class="empty-state"><span class="icon">👤</span><h3>No users found</h3></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

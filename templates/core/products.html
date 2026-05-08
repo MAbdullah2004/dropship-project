@@ -1,0 +1,64 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Products — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">🛍️ Browse Products</h1>
+    <p class="page-subtitle">Find products to sell and earn profit</p>
+  </div>
+</div>
+
+<form method="get" class="search-bar">
+  <div class="search-wrap">
+    <input type="text" name="q" class="search-input" placeholder="Search products..." value="{{ search }}">
+  </div>
+  <button type="submit" class="btn btn-primary">Search</button>
+  {% if search %}<a href="{% url 'products' %}" class="btn btn-ghost">Clear</a>{% endif %}
+</form>
+
+{% if categories %}
+<div class="filters">
+  <a href="{% url 'products' %}" class="filter-btn {% if not request.GET.category %}active{% endif %}">All Categories</a>
+  {% for cat in categories %}
+  <a href="{% url 'products' %}?category={{ cat.pk }}{% if search %}&q={{ search }}{% endif %}" class="filter-btn {% if request.GET.category == cat.pk|stringformat:'s' %}active{% endif %}">{{ cat.name }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if products %}
+<div class="products-grid">
+  {% for product in products %}
+  <div class="product-card animate-on-scroll">
+    <a href="{% url 'product_detail' product.slug %}" style="display:block;text-decoration:none;color:inherit;">
+      <div class="product-img">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+        {% else %}
+          <span style="font-size:3.5rem;">📦</span>
+        {% endif %}
+      </div>
+      <div class="product-info">
+        <div class="product-name">{{ product.name|truncatechars:55 }}</div>
+        {% if product.category %}
+        <div style="font-size:0.75rem;color:var(--primary);font-weight:600;margin-bottom:4px;">{{ product.category.name }}</div>
+        {% endif %}
+        <div class="product-price">Rs. {{ product.wholesale_price }}</div>
+        <div class="product-ws-price">Retail: Rs. {{ product.suggested_retail_price }}</div>
+      </div>
+    </a>
+    <div style="padding:0 1rem 1rem;">
+      <a href="{% url 'place_order_product' product.slug %}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">🛒 Order Now</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <span class="icon">🔍</span>
+    <h3>No Products Found</h3>
+    <p>Try a different search or category filter.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

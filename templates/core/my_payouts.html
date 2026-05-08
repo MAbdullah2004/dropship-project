@@ -1,0 +1,53 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}My Payouts — EliteStore{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">💰 My Payouts</h1>
+    <p class="page-subtitle">Track your payout history and requests</p>
+  </div>
+  <a href="{% url 'request_payout' %}" class="btn btn-success">💳 Request Payout</a>
+</div>
+
+{% if payouts %}
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Amount</th>
+          <th>Payment Method</th>
+          <th>Status</th>
+          <th>Transaction ID</th>
+          <th>Requested</th>
+          <th>Paid On</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payout in payouts %}
+        <tr>
+          <td><strong>#{{ payout.pk }}</strong></td>
+          <td style="font-weight:800;color:var(--primary);font-size:1rem;">Rs. {{ payout.amount }}</td>
+          <td style="font-size:0.85rem;">{{ payout.payment_method|default:"—" }}</td>
+          <td><span class="badge badge-{{ payout.status }}">{{ payout.get_status_display }}</span></td>
+          <td style="font-size:0.82rem;"><code>{{ payout.transaction_id|default:"Pending" }}</code></td>
+          <td style="font-size:0.82rem;color:var(--gray);">{{ payout.requested_at|date:"d M Y" }}</td>
+          <td style="font-size:0.82rem;color:var(--success);">{% if payout.paid_at %}{{ payout.paid_at|date:"d M Y" }}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <span class="icon">💳</span>
+    <h3>No Payout Requests</h3>
+    <p>Once your orders are delivered, you can request your earnings here.</p>
+    <a href="{% url 'request_payout' %}" class="btn btn-success" style="margin-top:1rem;">Request Payout</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
