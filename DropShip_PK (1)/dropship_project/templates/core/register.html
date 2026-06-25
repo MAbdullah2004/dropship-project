@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% block title %}Register - DropShip PK{% endblock %}
+{% block content %}
+<div class="auth-wrapper" style="padding:2rem 1rem">
+  <div class="auth-card" style="max-width:580px">
+    <div class="auth-logo">
+      <h2>Drop<span>Ship</span> PK</h2>
+      <p>Create your account</p>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Account Type</label>
+        <div class="radio-cards">
+          <div class="radio-card">
+            <input type="radio" name="role" id="reseller" value="reseller" checked>
+            <label for="reseller">🛍️<br>Reseller<br><small style="font-weight:400;color:var(--gray)">I want to sell</small></label>
+          </div>
+          <div class="radio-card">
+            <input type="radio" name="role" id="wholesaler" value="wholesaler">
+            <label for="wholesaler">🏭<br>Wholesaler<br><small style="font-weight:400;color:var(--gray)">I supply products</small></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" name="first_name" class="form-control" placeholder="First name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" name="last_name" class="form-control" placeholder="Last name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business Name</label>
+        <input type="text" name="business_name" class="form-control" placeholder="Your shop/business name" required>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="text" name="phone" class="form-control" placeholder="03XX-XXXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <input type="text" name="city" class="form-control" placeholder="Lahore, Karachi..." required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">CNIC</label>
+        <input type="text" name="cnic" class="form-control" placeholder="XXXXX-XXXXXXX-X" required>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password1" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" name="password2" class="form-control" required>
+        </div>
+      </div>
+      {% if form.errors %}
+      <div class="alert alert-error" style="margin-bottom:1rem">
+        {% for field in form %}{% for error in field.errors %}{{ error }}<br>{% endfor %}{% endfor %}
+        {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+      </div>
+      {% endif %}
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">Create Account →</button>
+    </form>
+    <p style="text-align:center;margin-top:1.5rem;color:var(--gray);font-size:0.9rem">
+      Already have account? <a href="{% url 'login' %}" style="color:var(--primary);font-weight:600">Login here</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

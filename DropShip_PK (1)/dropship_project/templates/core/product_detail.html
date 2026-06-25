@@ -1,0 +1,46 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}{{ product.name }} - DropShip PK{% endblock %}
+{% block dashboard_content %}
+<a href="{% url 'products' %}" style="color:var(--primary);text-decoration:none;font-weight:600">← Back to Products</a>
+<div class="card" style="margin-top:1.5rem">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+    <div>
+      {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%;border-radius:12px;object-fit:cover;max-height:400px">
+      {% else %}
+      <div style="width:100%;height:300px;background:var(--light-gray);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:5rem">📦</div>
+      {% endif %}
+      {% if product.image2 or product.image3 %}
+      <div style="display:flex;gap:0.5rem;margin-top:0.8rem">
+        {% if product.image2 %}<img src="{{ product.image2.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border)">{% endif %}
+        {% if product.image3 %}<img src="{{ product.image3.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--border)">{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    <div>
+      {% if product.category %}<span class="badge badge-approved" style="margin-bottom:0.8rem">{{ product.category.name }}</span>{% endif %}
+      <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:1rem">{{ product.name }}</h1>
+      <div style="background:var(--primary-light);border-radius:12px;padding:1.2rem;margin-bottom:1.2rem">
+        <div style="font-size:0.85rem;color:var(--gray)">Wholesale Price</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--primary)">Rs. {{ product.wholesale_price }}</div>
+        <div style="font-size:0.85rem;color:var(--gray);margin-top:4px">Suggested Retail: Rs. {{ product.suggested_retail_price }}</div>
+        <div style="font-size:0.85rem;color:var(--success);font-weight:600;margin-top:4px">
+          Potential Profit: Rs. {{ product.suggested_retail_price|floatformat:0 }}
+        </div>
+      </div>
+      <div style="margin-bottom:1rem">
+        <div style="font-size:0.85rem;color:var(--gray)">Stock Available</div>
+        <div style="font-weight:700;font-size:1.1rem">{{ product.stock }} units</div>
+      </div>
+      <div style="margin-bottom:1.5rem">
+        <div style="font-weight:600;margin-bottom:0.4rem">Description</div>
+        <p style="color:var(--gray);font-size:0.9rem;line-height:1.6">{{ product.description }}</p>
+      </div>
+      <div style="font-size:0.85rem;color:var(--gray)">By: <strong>{{ product.wholesaler.business_name|default:product.wholesaler.username }}</strong></div>
+      {% if user.role == 'reseller' %}
+      <a href="{% url 'place_order_product' product.slug %}" class="btn btn-primary btn-lg" style="margin-top:1.5rem">🛒 Place Order</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

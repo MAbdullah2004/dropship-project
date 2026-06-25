@@ -1,0 +1,110 @@
+{
+  "name": "EliteStore AI Smart Recommender",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "elitestore-recommender",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "elitestore-recommender"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer gsk_YOUR_GROQ_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an elite dropshipping advisor for EliteStore Pakistan. The user will provide a list of available products with their wholesale and retail prices. You must select the top 3 best products for a reseller to promote. Choose ones with good profit margins or general mass appeal.\\n\\nYou MUST reply with ONLY a valid JSON object in this exact format:\\n{\\n  \\\"recommendations\\\": [\\n    {\\n      \\\"product_name\\\": \\\"Name of product\\\",\\n      \\\"reason\\\": \\\"A short, catchy 1-sentence reason why they should sell this (e.g. 'High profit margin of Rs. 500, perfect for summer!'). Mix of English and Roman Urdu.\\\"\\n    }\\n  ]\\n}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.body.products_data) }}\n    }\n  ],\n  \"temperature\": 0.6,\n  \"max_tokens\": 400,\n  \"response_format\": {\"type\": \"json_object\"}\n}",
+        "options": {}
+      },
+      "id": "bbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "name": "Call Groq API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  const rawReply = $input.first().json.choices[0].message.content.trim();\n  const parsed = JSON.parse(rawReply);\n  return [{ json: { success: true, data: parsed } }];\n} catch (e) {\n  return [{ json: { success: false, error: e.message } }];\n}"
+      },
+      "id": "ccccccc-cccc-cccc-cccc-cccccccccccc",
+      "name": "Extract JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "ddddddd-dddd-dddd-dddd-dddddddddddd",
+      "name": "Respond to Website",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [940, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call Groq API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Groq API": {
+      "main": [
+        [
+          {
+            "node": "Extract JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract JSON": {
+      "main": [
+        [
+          {
+            "node": "Respond to Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}

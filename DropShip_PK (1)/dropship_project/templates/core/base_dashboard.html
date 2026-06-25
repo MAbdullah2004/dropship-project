@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block content %}
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h3>👋 {{ user.first_name|default:user.username }}</h3>
+      <p>{{ user.get_role_display }} Account</p>
+    </div>
+    <ul class="sidebar-nav">
+      <li class="sidebar-section">Main</li>
+      <li><a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><span class="icon">📊</span> Dashboard</a></li>
+
+      {% if user.role == 'reseller' %}
+      <li class="sidebar-section">Shop</li>
+      <li><a href="{% url 'products' %}"><span class="icon">🛍️</span> Browse Products</a></li>
+      <li><a href="{% url 'place_order' %}"><span class="icon">➕</span> Place Order</a></li>
+      <li class="sidebar-section">My Account</li>
+      <li><a href="{% url 'my_orders' %}"><span class="icon">📦</span> My Orders</a></li>
+      <li><a href="{% url 'my_payouts' %}"><span class="icon">💰</span> My Payouts</a></li>
+      <li><a href="{% url 'request_payout' %}"><span class="icon">💳</span> Request Payout</a></li>
+
+      {% elif user.role == 'wholesaler' %}
+      <li class="sidebar-section">Products</li>
+      <li><a href="{% url 'my_products' %}"><span class="icon">📦</span> My Products</a></li>
+      <li><a href="{% url 'add_product' %}"><span class="icon">➕</span> Add Product</a></li>
+
+      {% elif user.role == 'admin' %}
+      <li class="sidebar-section">Management</li>
+      <li><a href="{% url 'admin_users' %}"><span class="icon">👥</span> Users</a></li>
+      <li><a href="{% url 'admin_products' %}"><span class="icon">📦</span> Products</a></li>
+      <li><a href="{% url 'admin_orders' %}"><span class="icon">🛒</span> Orders</a></li>
+      <li><a href="{% url 'admin_payouts' %}"><span class="icon">💰</span> Payouts</a></li>
+      {% endif %}
+
+      <li class="sidebar-section">Account</li>
+      <li><a href="{% url 'logout' %}"><span class="icon">🚪</span> Logout</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    {% if not user.is_verified and user.role != 'admin' %}
+    <div class="verify-banner">
+      ⏳ <div><strong>Account Pending Verification</strong><br>Admin will verify your account soon. Some features may be limited.</div>
+    </div>
+    {% endif %}
+    {% block dashboard_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

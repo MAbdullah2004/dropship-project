@@ -1,0 +1,34 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Request Payout - DropShip PK{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div><div class="page-title">💰 Request Payout</div></div>
+  <a href="{% url 'my_payouts' %}" class="btn btn-outline">My Payouts</a>
+</div>
+<div class="card" style="max-width:480px">
+  <div style="background:var(--primary-light);border-radius:10px;padding:1rem;margin-bottom:1.5rem">
+    <div style="font-size:0.85rem;color:var(--gray)">Total Earnings (Delivered Orders)</div>
+    <div style="font-size:2rem;font-weight:800;color:var(--primary)">Rs. {{ total_earnings }}</div>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="form-label">Amount to Withdraw (Rs.) *</label>
+      <input type="number" name="amount" class="form-control" required min="1" step="0.01">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment Method</label>
+      <select name="payment_method" class="form-control">
+        <option value="JazzCash">JazzCash</option>
+        <option value="EasyPaisa">EasyPaisa</option>
+        <option value="Bank Transfer">Bank Transfer</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Account Details / Notes</label>
+      <textarea name="notes" class="form-control" rows="3" placeholder="Account number, IBAN, or any notes..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-success btn-lg">Request Payout</button>
+  </form>
+</div>
+{% endblock %}

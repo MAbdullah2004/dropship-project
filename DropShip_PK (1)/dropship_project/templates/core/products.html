@@ -1,0 +1,48 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Products - DropShip PK{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">🛍️ Browse Products</div>
+    <div class="page-subtitle">Find products to sell</div>
+  </div>
+</div>
+<form class="search-bar" method="get">
+  <input type="text" name="q" class="search-input" placeholder="Search products..." value="{{ search }}">
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+<div class="filters">
+  <a href="?" class="filter-btn {% if not request.GET.category %}active{% endif %}">All</a>
+  {% for cat in categories %}
+  <a href="?category={{ cat.id }}" class="filter-btn {% if request.GET.category == cat.id|stringformat:'s' %}active{% endif %}">{{ cat.name }}</a>
+  {% endfor %}
+</div>
+<div class="products-grid">
+  {% for product in products %}
+  <div class="product-card" style="display:block;text-decoration:none;color:inherit">
+    <a href="{% url 'product_detail' product.slug %}" style="text-decoration:none;color:inherit">
+      <div class="product-img">
+        {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}📦{% endif %}
+      </div>
+      <div class="product-info">
+        <div class="product-name">{{ product.name|truncatechars:60 }}</div>
+        <div class="product-price">Rs. {{ product.wholesale_price }}</div>
+        <div class="product-ws-price">Suggested: Rs. {{ product.suggested_retail_price }}</div>
+        <div style="margin-top:0.5rem;font-size:0.8rem;color:var(--gray)">Stock: {{ product.stock }}</div>
+      </div>
+    </a>
+    {% if user.role == 'reseller' %}
+    <div style="padding:0 1rem 1rem">
+      <a href="{% url 'place_order_product' product.slug %}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Order Now</a>
+    </div>
+    {% endif %}
+  </div>
+  {% empty %}
+  <div class="empty-state" style="grid-column:1/-1">
+    <div class="icon">📭</div>
+    <h3>No products found</h3>
+    <p>Try a different search or category</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

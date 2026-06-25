@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+{% block title %}DropShip Pakistan - #1 Dropshipping Platform{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-content">
+    <h1>Pakistan's #1 <span>Dropshipping</span> Platform</h1>
+    <p>Connect wholesalers & resellers. Sell without inventory. Earn from home.</p>
+    <div class="hero-btns">
+      <a href="{% url 'register' %}" class="btn btn-accent btn-lg">🚀 Start Selling Free</a>
+      <a href="{% url 'products' %}" class="btn btn-outline btn-lg" style="color:white;border-color:white">Browse Products</a>
+    </div>
+  </div>
+</section>
+
+<section style="padding:3rem 2rem; max-width:1200px; margin:0 auto;">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-bottom:3rem">
+    <div class="card" style="text-align:center;border-top:4px solid var(--primary)">
+      <div style="font-size:3rem;margin-bottom:0.5rem">🏪</div>
+      <h3 style="font-size:1.1rem;margin-bottom:0.5rem">For Resellers</h3>
+      <p style="color:var(--gray);font-size:0.9rem">Browse thousands of products, set your own price, earn profit on every order.</p>
+    </div>
+    <div class="card" style="text-align:center;border-top:4px solid var(--accent)">
+      <div style="font-size:3rem;margin-bottom:0.5rem">🏭</div>
+      <h3 style="font-size:1.1rem;margin-bottom:0.5rem">For Wholesalers</h3>
+      <p style="color:var(--gray);font-size:0.9rem">List your products, reach thousands of resellers, grow your sales network.</p>
+    </div>
+    <div class="card" style="text-align:center;border-top:4px solid var(--success)">
+      <div style="font-size:3rem;margin-bottom:0.5rem">📦</div>
+      <h3 style="font-size:1.1rem;margin-bottom:0.5rem">Easy Fulfillment</h3>
+      <p style="color:var(--gray);font-size:0.9rem">Place order, wholesaler ships to customer. No warehouse needed.</p>
+    </div>
+    <div class="card" style="text-align:center;border-top:4px solid var(--warning)">
+      <div style="font-size:3rem;margin-bottom:0.5rem">💰</div>
+      <h3 style="font-size:1.1rem;margin-bottom:0.5rem">Weekly Payouts</h3>
+      <p style="color:var(--gray);font-size:0.9rem">Your profits transferred directly to your account every week.</p>
+    </div>
+  </div>
+
+  <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:1.5rem">Featured Products</h2>
+  <div class="products-grid">
+    {% for product in products %}
+    <a href="{% url 'product_detail' product.slug %}" class="product-card">
+      <div class="product-img">
+        {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}📦{% endif %}
+      </div>
+      <div class="product-info">
+        <div class="product-name">{{ product.name|truncatechars:60 }}</div>
+        <div class="product-price">Rs. {{ product.wholesale_price }}</div>
+        <div class="product-ws-price">Suggested: Rs. {{ product.suggested_retail_price }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

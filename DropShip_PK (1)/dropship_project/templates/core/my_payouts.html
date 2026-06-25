@@ -1,0 +1,29 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}My Payouts - DropShip PK{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div><div class="page-title">💰 My Payouts</div></div>
+  <a href="{% url 'request_payout' %}" class="btn btn-success">+ Request Payout</a>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Amount</th><th>Method</th><th>Status</th><th>Requested</th><th>Paid On</th></tr></thead>
+      <tbody>
+        {% for p in payouts %}
+        <tr>
+          <td><strong>#{{ p.pk }}</strong></td>
+          <td style="font-weight:700">Rs. {{ p.amount }}</td>
+          <td>{{ p.payment_method }}</td>
+          <td><span class="badge badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
+          <td>{{ p.requested_at|date:"d M Y" }}</td>
+          <td>{% if p.paid_at %}{{ p.paid_at|date:"d M Y" }}{% else %}-{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem">No payouts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Manage Payouts - Admin{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div><div class="page-title">💰 Manage Payouts</div></div>
+</div>
+
+<div class="modal-overlay" id="payoutModal">
+  <div class="modal-box">
+    <h3 style="margin-bottom:1.5rem">Mark as Paid</h3>
+    <form method="post" id="payoutForm">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Transaction ID</label>
+        <input type="text" name="transaction_id" class="form-control" placeholder="Payment reference/TID">
+      </div>
+      <div style="display:flex;gap:0.8rem">
+        <button type="submit" class="btn btn-success">Mark Paid</button>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('payoutModal').classList.remove('open')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Reseller</th><th>Amount</th><th>Method</th><th>Notes</th><th>Status</th><th>Requested</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for p in payouts %}
+        <tr>
+          <td><strong>#{{ p.pk }}</strong></td>
+          <td>{{ p.reseller.username }}<br><small style="color:var(--gray)">{{ p.reseller.phone }}</small></td>
+          <td style="font-weight:700;font-size:1rem">Rs. {{ p.amount }}</td>
+          <td>{{ p.payment_method }}</td>
+          <td><small>{{ p.notes|truncatechars:40 }}</small></td>
+          <td>
+            <span class="badge badge-{{ p.status }}">{{ p.get_status_display }}</span>
+            {% if p.transaction_id %}<br><small style="color:var(--gray)">TID: {{ p.transaction_id }}</small>{% endif %}
+          </td>
+          <td><small>{{ p.requested_at|date:"d M Y" }}</small></td>
+          <td>
+            {% if p.status == 'pending' %}
+            <button class="btn btn-success btn-sm" onclick="openPayoutModal({{ p.pk }})">Mark Paid</button>
+            {% else %}
+            <span style="color:var(--success);font-size:0.85rem">✅ Done</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem">No payout requests yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function openPayoutModal(payoutId) {
+  document.getElementById('payoutForm').action = '/admin-panel/payouts/paid/' + payoutId + '/';
+  document.getElementById('payoutModal').classList.add('open');
+}
+</script>
+{% endblock %}

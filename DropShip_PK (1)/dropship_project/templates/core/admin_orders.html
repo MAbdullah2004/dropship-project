@@ -1,0 +1,84 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Manage Orders - Admin{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div><div class="page-title">🛒 Manage Orders</div></div>
+</div>
+<div class="filters">
+  <a href="?" class="filter-btn {% if not request.GET.status %}active{% endif %}">All</a>
+  {% for val, label in orders.0.STATUS_CHOICES|default:"" %}
+  {% endfor %}
+  <a href="?status=pending" class="filter-btn {% if request.GET.status == 'pending' %}active{% endif %}">Pending</a>
+  <a href="?status=confirmed" class="filter-btn {% if request.GET.status == 'confirmed' %}active{% endif %}">Confirmed</a>
+  <a href="?status=dispatched" class="filter-btn {% if request.GET.status == 'dispatched' %}active{% endif %}">Dispatched</a>
+  <a href="?status=delivered" class="filter-btn {% if request.GET.status == 'delivered' %}active{% endif %}">Delivered</a>
+  <a href="?status=returned" class="filter-btn {% if request.GET.status == 'returned' %}active{% endif %}">Returned</a>
+</div>
+
+<!-- Update Modal -->
+<div class="modal-overlay" id="updateModal">
+  <div class="modal-box">
+    <h3 style="margin-bottom:1.5rem;font-size:1.1rem">Update Order Status</h3>
+    <form method="post" id="updateForm">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-control">
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="dispatched">Dispatched</option>
+          <option value="delivered">Delivered</option>
+          <option value="returned">Returned</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Courier</label>
+        <input type="text" name="courier" class="form-control" placeholder="TCS, Leopards, etc.">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tracking Number</label>
+        <input type="text" name="tracking_number" class="form-control" placeholder="Tracking ID">
+      </div>
+      <div style="display:flex;gap:0.8rem">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('updateModal').classList.remove('open')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Product</th><th>Reseller</th><th>Customer</th><th>Profit</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><strong>#{{ o.pk }}</strong></td>
+          <td>{{ o.product.name|truncatechars:30 }}</td>
+          <td>{{ o.reseller.username }}</td>
+          <td>{{ o.customer_name }}<br><small style="color:var(--gray)">{{ o.customer_city }} | {{ o.customer_phone }}</small></td>
+          <td style="color:var(--success);font-weight:700">Rs.{{ o.profit }}</td>
+          <td><span class="badge badge-{{ o.status }}">{{ o.get_status_display }}</span></td>
+          <td><small>{{ o.created_at|date:"d M" }}</small></td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="openUpdateModal({{ o.pk }})">Update</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:2rem">No orders found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function openUpdateModal(orderId) {
+  document.getElementById('updateForm').action = '/admin-panel/orders/update/' + orderId + '/';
+  document.getElementById('updateModal').classList.add('open');
+}
+</script>
+{% endblock %}

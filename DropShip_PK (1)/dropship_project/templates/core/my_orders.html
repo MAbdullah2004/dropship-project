@@ -1,0 +1,33 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}My Orders - DropShip PK{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">📦 My Orders</div>
+    <div class="page-subtitle">Track all your orders</div>
+  </div>
+  <a href="{% url 'place_order' %}" class="btn btn-primary">+ New Order</a>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Product</th><th>Customer</th><th>Profit</th><th>Status</th><th>Tracking</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><strong>#{{ o.pk }}</strong></td>
+          <td>{{ o.product.name|truncatechars:35 }}<br><small style="color:var(--gray)">Qty: {{ o.quantity }} | Price: Rs.{{ o.reseller_price }}</small></td>
+          <td>{{ o.customer_name }}<br><small style="color:var(--gray)">{{ o.customer_city }}</small></td>
+          <td style="color:var(--success);font-weight:700">Rs. {{ o.profit }}</td>
+          <td><span class="badge badge-{{ o.status }}">{{ o.get_status_display }}</span></td>
+          <td>{% if o.tracking_number %}<small>{{ o.courier }}<br>{{ o.tracking_number }}</small>{% else %}<small style="color:var(--gray)">-</small>{% endif %}</td>
+          <td><small>{{ o.created_at|date:"d M Y" }}</small></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;color:var(--gray);padding:2rem">No orders yet. <a href="{% url 'products' %}">Browse products to start!</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

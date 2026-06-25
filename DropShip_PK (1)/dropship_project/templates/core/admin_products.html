@@ -1,0 +1,48 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Manage Products - Admin{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div><div class="page-title">📦 Manage Products</div></div>
+</div>
+<div class="filters">
+  <a href="?" class="filter-btn {% if not request.GET.status %}active{% endif %}">All</a>
+  <a href="?status=pending" class="filter-btn {% if request.GET.status == 'pending' %}active{% endif %}">⏳ Pending</a>
+  <a href="?status=approved" class="filter-btn {% if request.GET.status == 'approved' %}active{% endif %}">✅ Approved</a>
+  <a href="?status=rejected" class="filter-btn {% if request.GET.status == 'rejected' %}active{% endif %}">❌ Rejected</a>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Product</th><th>Wholesaler</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:0.8rem">
+              {% if p.image %}<img src="{{ p.image.url }}" style="width:40px;height:40px;border-radius:8px;object-fit:cover">{% else %}<div style="width:40px;height:40px;background:var(--light-gray);border-radius:8px;display:flex;align-items:center;justify-content:center">📦</div>{% endif %}
+              <strong>{{ p.name|truncatechars:40 }}</strong>
+            </div>
+          </td>
+          <td>{{ p.wholesaler.username }}</td>
+          <td>Rs. {{ p.wholesale_price }}</td>
+          <td>{{ p.stock }}</td>
+          <td><span class="badge badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
+          <td>
+            {% if p.status == 'pending' %}
+            <a href="{% url 'approve_product' p.pk %}" class="btn btn-success btn-sm">✅ Approve</a>
+            <a href="{% url 'reject_product' p.pk %}" class="btn btn-danger btn-sm">❌ Reject</a>
+            {% elif p.status == 'approved' %}
+            <a href="{% url 'reject_product' p.pk %}" class="btn btn-danger btn-sm">Reject</a>
+            {% elif p.status == 'rejected' %}
+            <a href="{% url 'approve_product' p.pk %}" class="btn btn-success btn-sm">Approve</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem">No products found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

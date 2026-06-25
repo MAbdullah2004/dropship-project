@@ -1,0 +1,155 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Dashboard - DropShip PK{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Welcome back, {{ user.first_name|default:user.username }}! 👋</div>
+    <div class="page-subtitle">{{ user.get_role_display }} Dashboard</div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+{% if user.role == 'admin' %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div class="stat-value">{{ total_users }}</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+  <div class="stat-card accent">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value">{{ pending_users }}</div>
+    <div class="stat-label">Pending Verifications</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value">{{ total_products }}</div>
+    <div class="stat-label">Total Products</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ total_orders }}</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+  <div class="card">
+    <div class="card-title">⚡ Quick Actions</div>
+    <div style="display:flex;flex-direction:column;gap:0.8rem">
+      <a href="{% url 'admin_users' %}?verified=0" class="btn btn-warning">⏳ Verify Users ({{ pending_users }} pending)</a>
+      <a href="{% url 'admin_products' %}?status=pending" class="btn btn-primary">📋 Review Products ({{ pending_products }} pending)</a>
+      <a href="{% url 'admin_payouts' %}" class="btn btn-success">💰 Process Payouts ({{ pending_payouts }} pending)</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Recent Orders</div>
+    {% for order in recent_orders %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-weight:600;font-size:0.9rem">Order #{{ order.pk }}</div>
+        <div style="font-size:0.8rem;color:var(--gray)">{{ order.reseller.username }}</div>
+      </div>
+      <span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- WHOLESALER DASHBOARD -->
+{% elif user.role == 'wholesaler' %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value">{{ my_products }}</div>
+    <div class="stat-label">Total Products</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ approved_products }}</div>
+    <div class="stat-label">Approved Products</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value">{{ pending_products }}</div>
+    <div class="stat-label">Pending Approval</div>
+  </div>
+  <div class="stat-card accent">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ total_orders }}</div>
+    <div class="stat-label">Orders Received</div>
+  </div>
+</div>
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div class="card-title" style="margin:0">📦 My Recent Products</div>
+    <a href="{% url 'add_product' %}" class="btn btn-primary btn-sm">+ Add Product</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for p in recent_products %}
+        <tr>
+          <td><strong>{{ p.name|truncatechars:40 }}</strong></td>
+          <td>Rs. {{ p.wholesale_price }}</td>
+          <td>{{ p.stock }}</td>
+          <td><span class="badge badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="text-align:center;color:var(--gray)">No products yet. <a href="{% url 'add_product' %}">Add one!</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- RESELLER DASHBOARD -->
+{% elif user.role == 'reseller' %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon">🛒</div>
+    <div class="stat-value">{{ total_orders }}</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+  <div class="stat-card success">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value">{{ delivered_orders }}</div>
+    <div class="stat-label">Delivered</div>
+  </div>
+  <div class="stat-card accent">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-value">{{ pending_orders }}</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">Rs. {{ total_profit }}</div>
+    <div class="stat-label">Total Profit</div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+  <div class="card">
+    <div class="card-title">⚡ Quick Actions</div>
+    <div style="display:flex;flex-direction:column;gap:0.8rem">
+      <a href="{% url 'products' %}" class="btn btn-primary">🛍️ Browse {{ available_products }} Products</a>
+      <a href="{% url 'place_order' %}" class="btn btn-accent">➕ Place New Order</a>
+      <a href="{% url 'request_payout' %}" class="btn btn-success">💰 Request Payout</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📦 Recent Orders</div>
+    {% for order in recent_orders %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-weight:600;font-size:0.9rem">{{ order.product.name|truncatechars:30 }}</div>
+        <div style="font-size:0.8rem;color:var(--gray)">{{ order.created_at|date:"d M Y" }}</div>
+      </div>
+      <span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span>
+    </div>
+    {% empty %}
+    <p style="color:var(--gray);font-size:0.9rem">No orders yet. <a href="{% url 'products' %}">Start selling!</a></p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

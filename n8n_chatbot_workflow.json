@@ -1,0 +1,100 @@
+{
+  "name": "EliteStore Customer Support Bot",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "84a7e937-251f-4428-a89e-2713f01c3df1",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1,
+      "position": [
+        260,
+        340
+      ],
+      "webhookId": "chat-agent"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful customer support agent for a dropshipping platform called EliteStore. Your goal is to be friendly and assist users (resellers and wholesalers). You answer general questions about dropshipping, how the platform works, and standard platform features."
+        }
+      },
+      "id": "e2ba995b-ee4f-4d57-b0cc-bf7135a16d56",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        520,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-3.5-turbo",
+        "options": {}
+      },
+      "id": "c1615d6c-671e-450f-a99f-7b003a272cb2",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        480,
+        560
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2bc8c5bc-d249-43c0-be3e-90800f576ff9",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1,
+      "position": [
+        620,
+        560
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f79b3803-3ea7-4222-9599-245ed7e79929",
+  "id": "0d6de02b-a010-44ec-b873-108bb6c61f22",
+  "tags": []
+}

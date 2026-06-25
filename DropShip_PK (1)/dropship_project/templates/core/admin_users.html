@@ -1,0 +1,53 @@
+{% extends 'core/base_dashboard.html' %}
+{% block title %}Manage Users - Admin{% endblock %}
+{% block dashboard_content %}
+<div class="page-header">
+  <div><div class="page-title">👥 Manage Users</div><div class="page-subtitle">Verify and manage accounts</div></div>
+</div>
+<div class="filters">
+  <a href="?" class="filter-btn {% if not request.GET.role and not request.GET.verified %}active{% endif %}">All</a>
+  <a href="?verified=0" class="filter-btn {% if request.GET.verified == '0' %}active{% endif %}">⏳ Pending</a>
+  <a href="?role=reseller" class="filter-btn {% if request.GET.role == 'reseller' %}active{% endif %}">Resellers</a>
+  <a href="?role=wholesaler" class="filter-btn {% if request.GET.role == 'wholesaler' %}active{% endif %}">Wholesalers</a>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>User</th><th>Role</th><th>Business</th><th>City</th><th>CNIC</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <strong>{{ u.username }}</strong><br>
+            <small style="color:var(--gray)">{{ u.email }}</small>
+          </td>
+          <td><span class="badge-role badge-{{ u.role }}">{{ u.get_role_display }}</span></td>
+          <td>{{ u.business_name|default:"-" }}</td>
+          <td>{{ u.city|default:"-" }}</td>
+          <td><small>{{ u.cnic|default:"-" }}</small></td>
+          <td>
+            {% if u.is_verified %}
+            <span class="badge badge-approved">✅ Verified</span>
+            {% elif not u.is_active %}
+            <span class="badge badge-rejected">❌ Rejected</span>
+            {% else %}
+            <span class="badge badge-pending">⏳ Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if not u.is_verified and u.is_active %}
+            <a href="{% url 'verify_user' u.pk %}" class="btn btn-success btn-sm">✅ Verify</a>
+            <a href="{% url 'reject_user' u.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Reject this user?')">❌ Reject</a>
+            {% elif u.is_verified %}
+            <a href="{% url 'reject_user' u.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Deactivate this user?')">Deactivate</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;color:var(--gray);padding:2rem">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
